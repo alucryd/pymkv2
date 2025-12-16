@@ -147,6 +147,7 @@ class MKVTrack:
         # track info
         self._track_codec: str | None = None
         self._track_type: str | None = None
+        self._audio_channels: int | None = None
 
         # base
         self.mkvmerge_path = prepare_mkvtoolnix_path(mkvmerge_path)
@@ -304,6 +305,9 @@ class MKVTrack:
             self._pts = 0
         self._track_codec = tracks[track_id]["codec"]
         self._track_type = tracks[track_id]["type"]
+        # Load audio_channels from properties if it exists (for audio tracks)
+        track_properties = tracks[track_id].get("properties", {})
+        self._audio_channels = track_properties.get("audio_channels")
 
     @property
     def language(self) -> str | None:
@@ -472,6 +476,17 @@ class MKVTrack:
             str: The type of track, such as video or audio.
         """
         return self._track_type
+
+    @property
+    def audio_channels(self) -> int | None:
+        """
+        Get the number of audio channels in the track.
+
+        Returns:
+            int | None: The number of audio channels (e.g., 2 for stereo, 6 for 5.1),
+                       or None if not an audio track or if the information is not available.
+        """
+        return self._audio_channels
 
     def extract(
         self,
